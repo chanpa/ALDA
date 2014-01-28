@@ -1,4 +1,4 @@
-package linear;
+package alda.linear;
 import java.util.Iterator;
 
 
@@ -6,7 +6,7 @@ public class Test {
 	public static void main(String[] args){
 		CAKLinkedList<Integer> list = new CAKLinkedList<Integer>();
 		
-		int limit = 400000;
+		int limit = 40000;
 		
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < limit; i++)
@@ -40,5 +40,6 @@ public class Test {
 		}
 		end = System.currentTimeMillis();
 		System.out.println(end-start);
+		System.out.println(list);
 	}
 }

@@ -1,9 +1,8 @@
-package linear;
+package alda.linear;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import alda.linear.ALDAList;
 
 
 

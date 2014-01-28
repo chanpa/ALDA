@@ -1,4 +1,4 @@
-package linear;
+package alda.linear;
 
 
 import java.util.Iterator;
@@ -7,7 +7,6 @@ import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Test;
 
-import alda.linear.ALDAList;
 import static org.junit.Assert.*;
 
 /**
