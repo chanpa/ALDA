@@ -25,6 +25,8 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 
 	public BinarySearchTreeNode(T data) {
 		this.data = data;
+		left = null;
+		right = null;
 	}
 
 	/**
@@ -39,25 +41,42 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 		// Hur vill vi hantera null data?
 		if (data == null)
 			return false;
+
+		return add(data, this);
+	}
+
+	private boolean add(T data, BinarySearchTreeNode<T> n){
+		int result = data.compareTo(n.data);
 		
 		// Om det nya datat är mindre än datat för denna nod
-		if (data.compareTo(this.data) < 0){
-			if (this.left == null){
+		if (result < 0){
+			if (n.left == null){
 				BinarySearchTreeNode<T> newNode = new BinarySearchTreeNode<T>(data);
-				
+				n.left = newNode;
+				return true;
 			}
+			else
+				return add(data, n.left);
 		}
-		
+
 		// Om det nya datat är större än datat för denna nod
-		else if (data.compareTo(this.data) > 0){
-			
+		else if (result > 0){
+			if (n.right == null){
+				BinarySearchTreeNode<T> newNode = new BinarySearchTreeNode<T>(data);
+				n.right = newNode;
+				return true;
+			}
+			else
+				return add(data, n.right);
 		}
 		
-		// Om det nya datat är samma som datat för denna nod
+		// Om result är 0 så har data samma värde som nuvarande noden. Gör ingenting.
 		else {
 			return false;
 		}
 	}
+
+
 
 	/**
 	 * Privat hj�lpmetod som �r till nytta vid borttag. Ni beh�ver inte
@@ -65,12 +84,20 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 	 * 
 	 * @return det minsta elementet i det (sub)tr�d som noden utg�r root i.
 	 */
-	private T findMin() {
+	private BinarySearchTreeNode<T> findMin() {
 		if (data == null)
 			return null;
 		else if (this.left == null)
-			return this.data;
+			return this;
 		return left.findMin();
+	}
+
+	private BinarySearchTreeNode<T> findMax() {
+		if (data == null)
+			return null;
+		else if (this.right == null)
+			return this;
+		return right.findMax();
 	}
 
 	/**
@@ -82,7 +109,26 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 	 * @return en referens till nodens subtr�d efter borttaget.
 	 */
 	public BinarySearchTreeNode<T> remove(T data) {
-		return null;
+		return remove(data, this);
+	}
+	private BinarySearchTreeNode<T> remove(T data, BinarySearchTreeNode<T> n){
+		if (n == null)
+			return null;
+		
+		int result = data.compareTo(n.data);
+		
+		if (result < 0)
+			n.left = remove(data, n.left);
+		else if (result > 0)
+			n.right = remove(data, n.right);
+		else if (n.right != null && n.left != null){
+			n.data = n.right.findMin().data;
+			n.right = remove(n.data, n.right);
+		}
+		else {
+			n = (n.left != null) ? n.left : n.right;
+		}
+		return n;
 	}
 
 	/**
@@ -95,7 +141,7 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 	 *         root i.
 	 */
 	public boolean contains(T data) {
-		
+
 		/*
 		 * Hur ska vi hantera sökning efter null?
 		 * Vad ska vi göra om datat i en viss nod är null?
@@ -103,31 +149,23 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 		if (data == null)
 			return false;
 		
-		// Om indatat är mindre än nuvarande nods data
-		if (data.compareTo(this.data) < 0){
-			// Om left för denna nod är null så är indata mindre än det minsta datat i detta subträd - det finns inte
-			if (left == null)
-				return false;
-			// Om det finns en left referens så kan en nod med vårat data fortfarande finnas, undersök nästa nod åt vänster (mindre)
-			left.contains(data);
-		}
+		return contains(data, this);
 		
-		// Om indatat är större än nuvarande nods data
-		else if (data.compareTo(this.data) > 0){
-			// Om right för denna nod är null så är indata större än det största datat i detta subträd - det finns inte
-			if (right == null)
-				return false;
-			// Om det finns en right referens så kan en nod med vårat data fortfarande finnas, undersök nästa nod åt höger (större)
-			right.contains(data);
-		}
+	}
+	
+	private boolean contains(T data, BinarySearchTreeNode<T> n){
+		if (n == null)
+			return false;
 		
-		// Om indatat varken är null, större eller mindre än nuvarande nods data så är det samma data - datat finns redan
-		else 
+		int result = data.compareTo(n.data);
+		
+		if (result < 0)
+			return contains(data, n.left);
+		else if (result > 0)
+			return contains(data, n.right);
+		else
 			return true;
 		
-		// Måste returnera en boolean. Borde inte if-elseif-else satsen täcka alla möjliga outcomes??
-		// när kommer vi hit???
-		return false;
 	}
 
 	/**
@@ -136,7 +174,14 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 	 * @return det totala antalet noder i det (sub)tr�d som noden utg�r root i.
 	 */
 	public int size() {
-		return 0;
+		return size(this, 0);
+	}
+	private int size(BinarySearchTreeNode<T> n, int size){
+		if (n != null){
+			size = size(n.left, size) + 1;
+			size = size(n.right, size);
+		}
+		return size;
 	}
 
 	/**
@@ -145,7 +190,14 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 	 * @return djupet.
 	 */
 	public int depth() {
-		return -1;
+		return depth(this);
+	}
+
+	private int depth(BinarySearchTreeNode<T> n){
+		if (n == null)
+			return -1;
+		else
+			return 1 + Math.max(depth(n.left), depth(n.right));
 	}
 
 	/**
@@ -156,6 +208,19 @@ public class BinarySearchTreeNode<T extends Comparable<T>> {
 	 * @return str�ngrepresentationen f�r det (sub)tr�d som noden utg�r root i.
 	 */
 	public String toString() {
-		return "";
+		String s = ascToStrBuilder(this, "");
+		if (s.length() > 2)
+			return s.substring(0, s.length()-2);
+		return s;
+	}
+
+	private String ascToStrBuilder(BinarySearchTreeNode<T> n, String s){
+		
+		if (n != null){
+			s = ascToStrBuilder(n.left, s) + n.data + ", ";
+			s = ascToStrBuilder(n.right, s);
+		}
+			
+		return s;
 	}
 }
